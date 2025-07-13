@@ -14,7 +14,8 @@ export default async function authorizationToken(
     const bearerToken = req.header("Authorization");
     const token = bearerToken?.split(" ")[1];
     if (!token) {
-        return res.status(401).json("Unhautorized: No token provided");
+        res.status(401).json("Unhautorized: No token provided");
+        return
     }
     if (!SECRET_KEY) {
         throw new Error("SECRET KEY is not defined in environment variables");
@@ -24,6 +25,6 @@ export default async function authorizationToken(
         (req as any).user = decoded;
         next();
     } catch (error) {
-        return res.status(401).json({ message: "Forbidden: Invalid token." });
+        res.status(401).json({ message: "Forbidden: Invalid token." });
     }
 }

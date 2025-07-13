@@ -20,10 +20,32 @@ enum Role {
   ADMIN
 }
 
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  date      DateTime
+  status    AppointmentStatus @default(PENDING)
+  client    User              @relation("clientAppointments", fields: [clientId], references: [id])
+  clientId  String
+  barber    User              @relation("barberAppointments", fields: [barberId], references: [id])
+  barberId  String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now())
+}
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(CLIENT)
-  createdAt DateTime @default(now())
+  id                   String        @id @default(cuid())
+  email                String        @unique
+  password             String
+  role                 Role          @default(CLIENT)
+  createdAt            DateTime      @default(now())
+  //citas que agenda como cliente
+  appointmentsAsClient Appointment[] @relation("clientAppointments")
+  //citas que recibe como barbero
+  appointmentsAsBarber Appointment[] @relation("barberAppointments")
 }
