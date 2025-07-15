@@ -10,7 +10,8 @@ const prisma = new PrismaClient();
 const SECRET_KEY = process.env.SECRET_KEY_ENV;
 
 export async function registerUserService(data: RegisterInput) {
-    const { email, password, role } = data;
+    const { email, password, role, name } = data;
+    const toUpperRole = role.toUpperCase() as "CLIENT" | "BARBER"
     //Aquí verificamos si el email del usuario ya está registrado debido a que debe ser único.
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -19,9 +20,10 @@ export async function registerUserService(data: RegisterInput) {
     const hashedPassword = await hashPassword(password);
     const user = await prisma.user.create({
         data: {
+            name,
             email,
             password: hashedPassword,
-            role,
+            role: toUpperRole,
         },
     });
 
@@ -43,7 +45,7 @@ export async function loginUserService(data: LoginInput) {
         throw new Error(`SECRET_KEY is not defined in environment variables`);
     }
     const token = jwt.sign(
-        { email: user.email, id: user.id, role: user.role },
+        { email: user.email, id: user.id, role: user.role, name: user.name },
         SECRET_KEY,
         { expiresIn: "1h" }
     );
@@ -54,6 +56,7 @@ export async function loginUserService(data: LoginInput) {
             email: user.email,
             id: user.id,
             role: user.role,
+            name: user.name,
         },
     };
 }
