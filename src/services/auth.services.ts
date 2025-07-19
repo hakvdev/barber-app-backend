@@ -35,17 +35,17 @@ export async function loginUserService(data: LoginInput) {
     const { email, password } = data;
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-        throw new ConflictError("Usuario no encontrado");
+        throw new ConflictError("Credenciales inválidas");
     }
     const isValidPassword = await comparePasswords(password, user.password);
     if (!isValidPassword) {
-        throw new ConflictError("Contraseña incorrecta");
+        throw new ConflictError("Credenciales inválidas");
     }
     if (!SECRET_KEY) {
         throw new Error(`SECRET_KEY is not defined in environment variables`);
     }
     const token = jwt.sign(
-        { email: user.email, id: user.id, role: user.role, name: user.name },
+        {  id: user.id, role: user.role },
         SECRET_KEY,
         { expiresIn: "1h" }
     );
@@ -53,10 +53,8 @@ export async function loginUserService(data: LoginInput) {
     return {
         token,
         user: {
-            email: user.email,
             id: user.id,
             role: user.role,
-            name: user.name,
         },
     };
 }

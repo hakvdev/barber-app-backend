@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -12,6 +6,29 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DB_URL")
+}
+
+model Appointment {
+  id        String            @id @default(cuid())
+  date      DateTime
+  status    AppointmentStatus @default(PENDING)
+  clientId  String
+  barberId  String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @default(now())
+  barber    User              @relation("barberAppointments", fields: [barberId], references: [id])
+  client    User              @relation("clientAppointments", fields: [clientId], references: [id])
+}
+
+model User {
+  id                   String        @id @default(cuid())
+  email                String        @unique
+  password             String
+  role                 Role          @default(CLIENT)
+  createdAt            DateTime      @default(now())
+  name                 String        @default("Desconocido")
+  appointmentsAsBarber Appointment[] @relation("barberAppointments")
+  appointmentsAsClient Appointment[] @relation("clientAppointments")
 }
 
 enum Role {
@@ -24,29 +41,4 @@ enum AppointmentStatus {
   PENDING
   CONFIRMED
   CANCELLED
-}
-
-model Appointment {
-  id        String            @id @default(cuid())
-  date      DateTime
-  status    AppointmentStatus @default(PENDING)
-  client    User              @relation("clientAppointments", fields: [clientId], references: [id])
-  clientId  String
-  barber    User              @relation("barberAppointments", fields: [barberId], references: [id])
-  barberId  String
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @default(now())
-}
-
-model User {
-  id                   String        @id @default(cuid())
-  name                 String        @default("Desconocido")
-  email                String        @unique
-  password             String
-  role                 Role          @default(CLIENT)
-  createdAt            DateTime      @default(now())
-  //citas que agenda como cliente
-  appointmentsAsClient Appointment[] @relation("clientAppointments")
-  //citas que recibe como barbero
-  appointmentsAsBarber Appointment[] @relation("barberAppointments")
 }
