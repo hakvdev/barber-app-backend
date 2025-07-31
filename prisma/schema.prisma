@@ -29,6 +29,18 @@ model User {
   name                 String        @default("Desconocido")
   appointmentsAsBarber Appointment[] @relation("barberAppointments")
   appointmentsAsClient Appointment[] @relation("clientAppointments")
+
+  services Service[] @relation("UserServices")
+}
+
+
+model Service {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  price     Int
+  createdAt DateTime  @default(now())
+
+  barbers   User[]    @relation("UserServices")
 }
 
 enum Role {

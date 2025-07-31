@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes"
 import appointmentRoutes from "./routes/appointment.client.routes"
 import userRoute from "./routes/user.routes"
+import barberRoute from "./routes/barber.routes"
 import { errorHandler } from "./utils/handleError";
 
 dotenv.config()
@@ -19,6 +20,7 @@ app.use(express.json())
 app.use("/auth", authRoutes)
 app.use("/appointments", appointmentRoutes)
 app.use("/user", userRoute)
+app.use("/barber", barberRoute)
 
 app.get('/', (req, res) => {
     res.send("Barber API corriendo 🚀")
